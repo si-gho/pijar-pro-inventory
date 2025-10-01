@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Progress to Structure Sync",
+  "description": "Automatically updates Project-Structure.md whenever Progress.md is saved to keep documentation in sync",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "docs/Progress.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The Progress.md file has been updated. Please analyze the current project structure and update the Project-Structure.md file to reflect any changes, additions, or improvements mentioned in the progress documentation. Ensure the project structure documentation remains accurate and comprehensive."
+  }
+}
