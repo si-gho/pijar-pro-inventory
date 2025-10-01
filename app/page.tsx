@@ -1,181 +1,128 @@
 'use client'
 
-import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useInventoryStore } from '@/lib/store/inventory-store'
-import { exportToCsv } from '@/lib/utils'
+import Link from 'next/link'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { InventoryForm } from '@/components/inventory-form'
-import { StatsCards } from '@/components/stats-cards'
-import { InventoryTable } from '@/components/inventory-table'
-import { Download, Plus, User } from 'lucide-react'
-
-// Sample data for initial load
-const sampleData = [
-  {
-    id: 1,
-    date: new Date('2025-09-28T08:30:00'),
-    name: 'Semen Tonasa 40kg',
-    type: 'masuk' as const,
-    quantity: 500,
-    notes: 'Kiriman dari supplier PT. Maju Jaya',
-    project: 'Pembangunan Gedung Kantor',
-    supervisor: 'Ir. Ahmad Fauzi',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 2,
-    date: new Date('2025-09-28T10:15:00'),
-    name: 'Besi Beton 10mm',
-    type: 'keluar' as const,
-    quantity: 200,
-    notes: 'Untuk pengecoran lantai 2',
-    project: 'Pembangunan Gedung Kantor',
-    supervisor: 'Ir. Ahmad Fauzi',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 3,
-    date: new Date('2025-09-29T09:00:00'),
-    name: 'Pasir Cor',
-    type: 'masuk' as const,
-    quantity: 15,
-    notes: 'Dalam satuan truk (m³)',
-    project: 'Renovasi Jembatan Aek Tapa',
-    supervisor: 'Drs. Budi Santoso',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 4,
-    date: new Date('2025-09-29T14:30:00'),
-    name: 'Cat Tembok Nippon',
-    type: 'keluar' as const,
-    quantity: 30,
-    notes: 'Untuk finishing area ruang pertemuan',
-    project: 'Pembangunan Gedung Kantor',
-    supervisor: 'Ir. Ahmad Fauzi',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 5,
-    date: new Date('2025-09-30T07:45:00'),
-    name: 'Keramik 40x40',
-    type: 'masuk' as const,
-    quantity: 800,
-    notes: 'Model Roman Granit warna abu-abu',
-    project: 'Renovasi Jembatan Aek Tapa',
-    supervisor: 'Drs. Budi Santoso',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }
-]
+import { Package, BarChart3, Settings, ArrowRight } from 'lucide-react'
 
 export default function HomePage() {
-  const { items, setItems, toggleForm, showForm } = useInventoryStore()
-
-  useEffect(() => {
-    // Load sample data on initial render
-    if (items.length === 0) {
-      setItems(sampleData)
-    }
-  }, [items.length, setItems])
-
-  const handleExport = () => {
-    exportToCsv(items, 'laporan-barang')
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-      {/* Header */}
-      <motion.header 
-        className="bg-white shadow-sm border-b"
-        initial={{ opacity: 0, y: -20 }}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Welcome Section */}
+      <motion.div
+        className="text-center mb-12"
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-            >
-              <h1 className="text-3xl font-bold text-slate-900">
-                Dashboard Kelola Barang
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Proyek Pembangunan - Kab. Labuhanbatu Selatan
-              </p>
-            </motion.div>
-            
-            <motion.div 
-              className="flex items-center gap-4"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-            >
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <User className="w-4 h-4" />
-                <span>Ir. Ahmad Fauzi</span>
+        <h1 className="text-4xl font-bold text-slate-900 mb-4">
+          Selamat Datang di Dashboard
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Kelola inventori proyek pembangunan dengan mudah dan efisien
+        </p>
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Package className="w-6 h-6 text-blue-600" />
               </div>
-              
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleExport}
-                  className="flex items-center gap-2"
-                  disabled={items.length === 0}
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">Export</span>
-                </Button>
-                
-                <Button
-                  onClick={toggleForm}
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">
-                    {showForm ? 'Tutup Form' : 'Tambah Data'}
-                  </span>
-                </Button>
+              <div>
+                <CardTitle className="text-lg">Operasional</CardTitle>
+                <CardDescription>Kelola barang masuk & keluar</CardDescription>
               </div>
-            </motion.div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Link href="/operations">
+              <Button className="w-full">
+                Buka Operasional
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer opacity-50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <BarChart3 className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Laporan</CardTitle>
+                <CardDescription>Analisis & statistik data</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" disabled>
+              Segera Hadir
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer opacity-50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Settings className="w-6 h-6 text-purple-600" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Pengaturan</CardTitle>
+                <CardDescription>Konfigurasi sistem</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" disabled>
+              Segera Hadir
+            </Button>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Info Section */}
+      <motion.div
+        className="bg-white rounded-lg p-6 shadow-sm border"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+      >
+        <h2 className="text-2xl font-semibold text-slate-900 mb-4">
+          Tentang Sistem
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="font-medium text-slate-900 mb-2">Fitur Utama</h3>
+            <ul className="text-muted-foreground space-y-1">
+              <li>• Pencatatan barang masuk dan keluar</li>
+              <li>• Dashboard statistik real-time</li>
+              <li>• Export data ke CSV</li>
+              <li>• Interface mobile-friendly</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-medium text-slate-900 mb-2">Teknologi</h3>
+            <ul className="text-muted-foreground space-y-1">
+              <li>• Next.js 15 dengan App Router</li>
+              <li>• React 19 & TypeScript</li>
+              <li>• Tailwind CSS & Shadcn/ui</li>
+              <li>• Framer Motion untuk animasi</li>
+            </ul>
           </div>
         </div>
-      </motion.header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Form */}
-        <InventoryForm />
-        
-        {/* Stats Cards */}
-        <StatsCards />
-        
-        {/* Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.4 }}
-        >
-          <InventoryTable />
-        </motion.div>
-        
-        {/* Footer */}
-        <motion.footer 
-          className="mt-8 text-center text-sm text-muted-foreground"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.6 }}
-        >
-          <p>© 2025 Sistem Kelola Barang Proyek - Kabupaten Labuhanbatu Selatan</p>
-        </motion.footer>
-      </main>
+      </motion.div>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useInventoryStore } from '@/lib/store/inventory-store'
+import { useInventory } from '@/lib/hooks/use-inventory'
 import { Card, CardContent } from '@/components/ui/card'
 import { Package, TrendingUp, TrendingDown, FileText } from 'lucide-react'
 
@@ -45,13 +45,45 @@ const statsConfig = [
 ]
 
 export function StatsCards() {
-  const store = useInventoryStore()
+  const { items, loading } = useInventory()
+
+  const getStats = () => {
+    if (loading || !items) return { total: 0, masuk: 0, keluar: 0, projects: 0 }
+    
+    const masuk = items.filter(item => item.type === 'masuk').length
+    const keluar = items.filter(item => item.type === 'keluar').length
+    const projects = new Set(items.map(item => item.project)).size
+    
+    return {
+      total: items.length,
+      masuk,
+      keluar,
+      projects
+    }
+  }
+
+  const stats = getStats()
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {statsConfig.map((stat, index) => {
         const Icon = stat.icon
-        const value = store[stat.key]()
+        let value = 0
+        
+        switch (stat.key) {
+          case 'getTotalTransactions':
+            value = stats.total
+            break
+          case 'getTotalMasuk':
+            value = stats.masuk
+            break
+          case 'getTotalKeluar':
+            value = stats.keluar
+            break
+          case 'getActiveProjects':
+            value = stats.projects
+            break
+        }
         
         return (
           <motion.div

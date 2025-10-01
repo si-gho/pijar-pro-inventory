@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { InventoryItem } from '@/lib/db/schema'
+import { InventoryItem } from '@/lib/hooks/use-inventory'
 
 interface InventoryState {
   items: InventoryItem[]

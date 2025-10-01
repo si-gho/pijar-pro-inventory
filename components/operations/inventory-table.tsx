@@ -1,13 +1,14 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useInventoryStore } from '@/lib/store/inventory-store'
+import { useInventory } from '@/lib/hooks/use-inventory'
 import { formatDate } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Calendar, User, TrendingUp, TrendingDown } from 'lucide-react'
+import { Calendar, User, TrendingUp, TrendingDown, Package, Loader2, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export function InventoryTable() {
-  const { items } = useInventoryStore()
+  const { items, loading, error, refetch } = useInventory()
 
   return (
     <Card>
@@ -31,6 +32,9 @@ export function InventoryTable() {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Jumlah
                 </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">
+                  Stok Saat Ini
+                </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
                   Proyek
                 </th>
@@ -40,9 +44,38 @@ export function InventoryTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {items.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground/50" />
+                      <p>Memuat data...</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
+                    <div className="flex flex-col items-center gap-3">
+                      <AlertCircle className="w-12 h-12 text-red-500/50" />
+                      <div>
+                        <p className="text-red-600 font-medium">Gagal memuat data</p>
+                        <p className="text-sm">{error}</p>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={refetch}
+                        className="mt-2"
+                      >
+                        Coba Lagi
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ) : items.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                       <Package className="w-12 h-12 text-muted-foreground/50" />
                       <p>Belum ada data transaksi</p>
@@ -53,7 +86,7 @@ export function InventoryTable() {
               ) : (
                 items.map((item, index) => (
                   <motion.tr
-                    key={item.id}
+                    key={`${item.id}-${item.date}-${index}`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -95,6 +128,14 @@ export function InventoryTable() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-semibold">{item.quantity.toLocaleString('id-ID')}</span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">
+                          {item.stockQty !== undefined ? item.stockQty.toLocaleString('id-ID') : '-'}
+                        </span>
+                      </div>
+                    </td>
                     <td className="px-6 py-4 hidden lg:table-cell">
                       <div className="text-sm max-w-xs truncate">{item.project}</div>
                     </td>
@@ -115,5 +156,3 @@ export function InventoryTable() {
   )
 }
 
-// Import Package icon
-import { Package } from 'lucide-react'
