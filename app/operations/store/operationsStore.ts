@@ -46,7 +46,6 @@ interface OperationsState {
   items: InventoryItem[]
   
   // UI States
-  showForm: boolean
   showNewItemModal: boolean
   isLoading: boolean
   error: string | null
@@ -67,8 +66,6 @@ interface OperationsState {
   deleteItem: (id: number) => void
   
   // UI Actions
-  toggleForm: () => void
-  setShowForm: (show: boolean) => void
   toggleNewItemModal: () => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
@@ -123,7 +120,6 @@ export const useOperationsStore = create<OperationsState>()(
       (set, get) => ({
         // Initial States
         items: [],
-        showForm: false,
         showNewItemModal: false,
         isLoading: false,
         error: null,
@@ -151,8 +147,6 @@ export const useOperationsStore = create<OperationsState>()(
         })),
 
         // UI Actions
-        toggleForm: () => set((state) => ({ showForm: !state.showForm })),
-        setShowForm: (show) => set({ showForm: show }),
         toggleNewItemModal: () => set((state) => ({ showNewItemModal: !state.showNewItemModal })),
         setLoading: (loading) => set({ isLoading: loading }),
         setError: (error) => set({ error }),

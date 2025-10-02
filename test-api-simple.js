@@ -8,7 +8,7 @@ console.log('1. Test GET Users:')
 console.log('curl -X GET http://localhost:3000/api/users\n')
 
 console.log('2. Test GET Inventory Items:')
-console.log('curl -X GET http://localhost:3000/api/inventory-items\n')
+console.log('curl -X GET http://localhost:3000/api/inventory/items\n')
 
 console.log('3. Test GET Inventory Transactions:')
 console.log('curl -X GET http://localhost:3000/api/inventory\n')
@@ -17,7 +17,7 @@ console.log('4. Test POST Seed Database:')
 console.log('curl -X POST http://localhost:3000/api/seed\n')
 
 console.log('5. Test POST Add New Inventory Item:')
-console.log(`curl -X POST http://localhost:3000/api/inventory-items \\
+console.log(`curl -X POST http://localhost:3000/api/inventory/items \\
   -H "Content-Type: application/json" \\
   -d '{"itemName": "Test Item", "description": "Test Description", "stockQty": 10}'\n`)
 
