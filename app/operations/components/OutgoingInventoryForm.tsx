@@ -13,18 +13,17 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useToast } from '@/hooks/use-toast'
-import { X, Save, Loader2, Plus } from 'lucide-react'
-import { NewItemModal } from './NewItemModal'
+import { useToast } from '@/components/ui/use-toast'
+import { Save, Loader2 } from 'lucide-react'
 
-export function InventoryForm() {
-  const { showForm, toggleForm } = useOperationsStore()
-  const { 
-    formData, 
-    errors, 
-    isSubmitting, 
+export function OutgoingInventoryForm() {
+  const { toggleForm } = useOperationsStore()
+  const {
+    formData,
+    errors,
+    isSubmitting,
     masterItems,
-    updateForm, 
+    updateForm,
     resetForm,
     clearAllErrors,
     validateForm,
@@ -33,14 +32,14 @@ export function InventoryForm() {
     validateUnit,
     validateItemName
   } = useInventoryFormState()
-  
+
   const createMutation = useCreateInventoryItem()
   const { toast } = useToast()
   const quantityInputRef = useRef<HTMLInputElement>(null)
 
   const handleInputChange = (field: string, value: string | number) => {
     updateForm({ [field]: value })
-    
+
     // Real-time validation
     if (field === 'name') {
       validateItemName(value as string)
@@ -60,7 +59,7 @@ export function InventoryForm() {
           })
         }
       }
-      validateQuantity(qty, formData.type as 'masuk' | 'keluar', formData.name)
+      validateQuantity(qty, 'keluar', formData.name)
     }
   }
 
@@ -74,7 +73,6 @@ export function InventoryForm() {
   const isFormValid = () => {
     return (
       formData.name.trim() !== '' &&
-      formData.type !== '' &&
       formData.unit?.trim() !== '' &&
       (typeof formData.quantity === 'string' ? parseInt(formData.quantity) : formData.quantity) > 0 &&
       Object.keys(errors).length === 0
@@ -83,7 +81,7 @@ export function InventoryForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
@@ -99,28 +97,26 @@ export function InventoryForm() {
     }
 
     // Additional stock validation for 'keluar' type
-    if (formData.type === 'keluar') {
-      const stockValidation = validateStockAvailability(
-        formData.name, 
-        typeof formData.quantity === 'string' ? parseInt(formData.quantity) : formData.quantity,
-        masterItems
-      )
-      
-      if (!stockValidation.isValid) {
-        toast({
-          title: 'Stok Tidak Mencukupi',
-          description: stockValidation.message,
-          variant: 'destructive'
-        })
-        return
-      }
+    const stockValidation = validateStockAvailability(
+      formData.name,
+      typeof formData.quantity === 'string' ? parseInt(formData.quantity) : formData.quantity,
+      masterItems
+    )
+
+    if (!stockValidation.isValid) {
+      toast({
+        title: 'Stok Tidak Mencukupi',
+        description: stockValidation.message,
+        variant: 'destructive'
+      })
+      return
     }
 
     try {
       await createMutation.mutateAsync({
         date: formData.date,
         name: formData.name,
-        type: formData.type as 'masuk' | 'keluar',
+        type: 'keluar',
         quantity: typeof formData.quantity === 'string' ? parseInt(formData.quantity) : formData.quantity,
         notes: formData.notes || '',
         project: 'Pembangunan Gedung Kantor' // Default project
@@ -128,8 +124,7 @@ export function InventoryForm() {
 
       resetForm()
       clearAllErrors()
-      toggleForm()
-      
+
       toast({
         title: 'Berhasil',
         description: `${formData.name} telah ditambahkan ke inventori`
@@ -145,29 +140,13 @@ export function InventoryForm() {
 
   return (
     <>
-      <AnimatePresence mode="wait">
-        {showForm && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Card className="mb-6">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <CardTitle className="text-xl">Tambah Data Baru</CardTitle>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleForm}
-                  className="h-8 w-8"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Date */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold tracking-tight">Barang Keluar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Date */}
                   <div className="space-y-2">
                     <Label htmlFor="date">Tanggal</Label>
                     <Input
@@ -212,38 +191,9 @@ export function InventoryForm() {
                           )}
                         </SelectContent>
                       </Select>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => useOperationsStore.getState().toggleNewItemModal()}
-                        title="Tambah barang baru"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
                     </div>
                     {errors.name && (
                       <p className="text-sm text-destructive">{errors.name}</p>
-                    )}
-                  </div>
-
-                  {/* Type Selection */}
-                  <div className="space-y-2">
-                    <Label>Tipe Transaksi</Label>
-                    <Select
-                      value={formData.type || ''}
-                      onValueChange={(value: 'masuk' | 'keluar') => handleInputChange('type', value)}
-                    >
-                      <SelectTrigger className={errors.type ? 'border-destructive' : ''}>
-                        <SelectValue placeholder="Pilih" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="masuk">Barang Masuk</SelectItem>
-                        <SelectItem value="keluar">Barang Keluar</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {errors.type && (
-                      <p className="text-sm text-destructive">{errors.type}</p>
                     )}
                   </div>
 
@@ -271,7 +221,7 @@ export function InventoryForm() {
                         </p>
                       )}
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="unit">Satuan</Label>
                       <Input
@@ -300,15 +250,7 @@ export function InventoryForm() {
                   </div>
 
                   {/* Submit Buttons */}
-                  <div className="flex gap-3 justify-end pt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={toggleForm}
-                      disabled={isSubmitting}
-                    >
-                      Batal
-                    </Button>
+                  <div className="flex justify-end pt-4">
                     <Button type="submit" disabled={isSubmitting || !isFormValid()}>
                       {isSubmitting ? (
                         <>
@@ -326,11 +268,6 @@ export function InventoryForm() {
                 </form>
               </CardContent>
             </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <NewItemModal />
     </>
   )
 }

@@ -20,7 +20,7 @@ export interface InventoryMasterItem {
 
 // API functions
 async function fetchInventoryMasterItems(): Promise<InventoryMasterItem[]> {
-  const response = await fetch('/api/inventory-items')
+  const response = await fetch('/api/inventory/items')
   if (!response.ok) {
     throw new Error('Failed to fetch inventory master items')
   }
@@ -28,7 +28,7 @@ async function fetchInventoryMasterItems(): Promise<InventoryMasterItem[]> {
 }
 
 async function createInventoryMasterItem(item: Omit<InventoryMasterItem, 'id' | 'created_at' | 'updated_at' | 'current_stock'>): Promise<InventoryMasterItem> {
-  const response = await fetch('/api/inventory-items', {
+  const response = await fetch('/api/inventory/items', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(item)

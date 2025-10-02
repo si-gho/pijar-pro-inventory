@@ -1,0 +1,107 @@
+
+> pijar-pro-inventory@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.33
+  - Local:        http://localhost:3000
+  - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 3.1s
+ ○ Compiling /api/users ...
+ ✓ Compiled /api/users in 2.4s (164 modules)
+ GET /api/users 200 in 4238ms
+ ○ Compiling /api/inventory/items ...
+ ✓ Compiled /api/inventory/items in 725ms (166 modules)
+ GET /api/inventory/items 200 in 1836ms
+ ✓ Compiled /api/inventory in 109ms (168 modules)
+ GET /api/inventory 200 in 1029ms
+ ✓ Compiled /api/seed in 122ms (175 modules)
+🔧 Setting up database triggers...
+✅ Database triggers setup successfully!
+🌱 Seeding database...
+❌ Error seeding database: error: duplicate key value violates unique constraint "users_username_key"
+    at eval (webpack-internal:///(rsc)/./node_modules/@neondatabase/serverless/index.mjs:1359:74)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async NeonPreparedQuery.execute (webpack-internal:///(rsc)/./node_modules/drizzle-orm/neon-serverless/session.js:85:20)
+    at async seedDatabase (webpack-internal:///(rsc)/./lib/db/seed.ts:14:29)
+    at async POST (webpack-internal:///(rsc)/./app/api/seed/route.ts:16:9)
+    at async /app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/app/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/app/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/app/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/app/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/app/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/app/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/app/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/app/node_modules/next/dist/server/base-server.js:818:17)
+    at async /app/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/app/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/app/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/app/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/app/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/app/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/app/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  length: 212,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (username)=(ahmad_fauzi) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'users',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'users_username_key',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Error setting up database: error: duplicate key value violates unique constraint "users_username_key"
+    at eval (webpack-internal:///(rsc)/./node_modules/@neondatabase/serverless/index.mjs:1359:74)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async NeonPreparedQuery.execute (webpack-internal:///(rsc)/./node_modules/drizzle-orm/neon-serverless/session.js:85:20)
+    at async seedDatabase (webpack-internal:///(rsc)/./lib/db/seed.ts:14:29)
+    at async POST (webpack-internal:///(rsc)/./app/api/seed/route.ts:16:9)
+    at async /app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/app/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/app/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/app/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/app/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/app/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/app/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/app/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/app/node_modules/next/dist/server/base-server.js:818:17)
+    at async /app/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/app/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/app/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/app/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/app/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/app/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/app/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  length: 212,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (username)=(ahmad_fauzi) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'users',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'users_username_key',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+ POST /api/seed 500 in 1322ms

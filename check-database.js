@@ -35,7 +35,7 @@ async function checkDatabase() {
     
     // Check inventory items
     console.log('\n3. Checking inventory items...')
-    const itemsResponse = await fetch(`${BASE_URL}/api/inventory-items`)
+    const itemsResponse = await fetch(`${BASE_URL}/api/inventory/items`)
     if (itemsResponse.ok) {
       const items = await itemsResponse.json()
       console.log(`✅ Found ${items.length} inventory items`)

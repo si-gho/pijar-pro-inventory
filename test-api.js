@@ -17,9 +17,9 @@ async function testAPI() {
       console.log('❌ Users API failed:', usersResponse.status)
     }
 
-    // Test 2: GET /api/inventory-items
-    console.log('\n2. Testing GET /api/inventory-items')
-    const itemsResponse = await fetch(`${BASE_URL}/api/inventory-items`)
+    // Test 2: GET /api/inventory/items
+    console.log('\n2. Testing GET /api/inventory/items')
+    const itemsResponse = await fetch(`${BASE_URL}/api/inventory/items`)
     if (itemsResponse.ok) {
       const items = await itemsResponse.json()
       console.log('✅ Inventory Items API working:', items.length, 'items found')

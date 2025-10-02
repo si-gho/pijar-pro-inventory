@@ -7,7 +7,7 @@ async function debugAPI() {
   const endpoints = [
     { name: 'Seed Database', url: '/api/seed', method: 'POST' },
     { name: 'Get Users', url: '/api/users', method: 'GET' },
-    { name: 'Get Inventory Items', url: '/api/inventory-items', method: 'GET' },
+    { name: 'Get Inventory Items', url: '/api/inventory/items', method: 'GET' },
     { name: 'Get Inventory Transactions', url: '/api/inventory', method: 'GET' }
   ]
   
