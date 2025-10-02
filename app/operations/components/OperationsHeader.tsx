@@ -1,22 +1,19 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useOperationsStore } from '../store/operationsStore'
 import { Button } from '@/components/ui/button'
 import { Download, Plus, User } from 'lucide-react'
+import { exportToCsv } from '@/lib/utils'
 
-interface OperationsHeaderProps {
-  onExport: () => void
-  onToggleForm: () => void
-  showForm: boolean
-  itemsCount: number
-}
+export function OperationsHeader() {
+  const { showForm, toggleForm, getFilteredItems } = useOperationsStore()
+  const filteredItems = getFilteredItems()
 
-export function OperationsHeader({ 
-  onExport, 
-  onToggleForm, 
-  showForm, 
-  itemsCount 
-}: OperationsHeaderProps) {
+  const handleExport = () => {
+    exportToCsv(filteredItems, 'laporan-barang')
+  }
+
   return (
     <motion.div 
       className="bg-white shadow-sm border-b mb-6"
@@ -53,16 +50,16 @@ export function OperationsHeader({
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                onClick={onExport}
+                onClick={handleExport}
                 className="flex items-center gap-2"
-                disabled={itemsCount === 0}
+                disabled={filteredItems.length === 0}
               >
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Export</span>
               </Button>
               
               <Button
-                onClick={onToggleForm}
+                onClick={toggleForm}
                 className="flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />

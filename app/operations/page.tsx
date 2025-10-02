@@ -1,30 +1,32 @@
 'use client'
 
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useInventoryStore } from '@/lib/store/inventory-store'
-import { useInventory } from '@/lib/hooks/use-inventory'
-import { exportToCsv } from '@/lib/utils'
-import { OperationsHeader } from '@/components/operations/operations-header'
-import { InventoryForm } from '@/components/operations/inventory-form'
-import { StatsCards } from '@/components/operations/stats-cards'
-import { InventoryTable } from '@/components/operations/inventory-table'
+import { useOperationsStore } from './store/operationsStore'
+import { useInventory } from './hooks/useInventory'
+import { OperationsHeader } from './components/OperationsHeader'
+import { InventoryForm } from './components/InventoryForm'
+import { StatsCards } from './components/StatsCards'
+import { InventoryTable } from './components/InventoryTable'
 
 export default function OperationsPage() {
-  const { toggleForm, showForm } = useInventoryStore()
-  const { items } = useInventory()
+  const { setItems, setLoading, setError } = useOperationsStore()
+  const { items, isLoading, error } = useInventory()
 
-  const handleExport = () => {
-    exportToCsv(items, 'laporan-barang')
-  }
+  // Sync data with store
+  useEffect(() => {
+    if (items) {
+      setItems(items)
+    }
+    setLoading(isLoading)
+    if (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error')
+    }
+  }, [items, isLoading, error, setItems, setLoading, setError])
 
   return (
     <div>
-      <OperationsHeader
-        onExport={handleExport}
-        onToggleForm={toggleForm}
-        showForm={showForm}
-        itemsCount={items.length}
-      />
+      <OperationsHeader />
       
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">

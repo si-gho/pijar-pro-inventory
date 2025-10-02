@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { transactions, users, inventory } from '@/lib/db/schema'
 import { desc, eq } from 'drizzle-orm'
-import { validateInventoryItem, handleOperationError } from '@/lib/validations/operations'
 
 export async function GET() {
   try {
@@ -39,22 +38,23 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    // Validate request body
-    const validationResult = validateInventoryItem({
-      ...body,
-      project: body.project || 'Pembangunan Gedung Kantor',
-      supervisor: body.supervisor || 'Ir. Ahmad Fauzi',
-    })
-    
-    if (!validationResult.success) {
-      const operationError = handleOperationError(validationResult.error)
+    // Simple validation
+    if (!body.name || !body.type || !body.quantity || !body.date || !body.unit) {
       return NextResponse.json(
-        { error: operationError.message, details: operationError.details },
+        { error: 'Missing required fields' },
         { status: 400 }
       )
     }
     
-    const validatedData = validationResult.data
+    const validatedData = {
+      name: body.name,
+      type: body.type,
+      quantity: parseInt(body.quantity),
+      unit: body.unit,
+      date: body.date,
+      notes: body.notes || '',
+      project: body.project || 'Pembangunan Gedung Kantor'
+    }
     
     // Default user ID (operator1) - in real app, get from session
     const defaultUser = await db
@@ -120,9 +120,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response, { status: 201 })
   } catch (error) {
     console.error('Error creating inventory item:', error)
-    const operationError = handleOperationError(error)
     return NextResponse.json(
-      { error: operationError.message },
+      { error: 'Failed to create inventory item' },
       { status: 500 }
     )
   }

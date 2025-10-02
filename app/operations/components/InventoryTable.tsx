@@ -1,14 +1,15 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useInventory } from '@/lib/hooks/use-inventory'
+import { useOperationsStore } from '../store/operationsStore'
 import { formatDate } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Calendar, User, TrendingUp, TrendingDown, Package, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function InventoryTable() {
-  const { items, loading, error, refetch } = useInventory()
+  const { getFilteredItems, isLoading, error } = useOperationsStore()
+  const items = getFilteredItems()
 
   return (
     <Card>
@@ -21,7 +22,7 @@ export function InventoryTable() {
             <thead className="bg-muted/30 border-b">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Tanggal/Waktu
+                  Tanggal
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Nama Barang
@@ -32,21 +33,18 @@ export function InventoryTable() {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Jumlah
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">
-                  Stok Saat Ini
-                </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
                   Proyek
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden xl:table-cell">
-                  Pengawas
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
+                  Catatan
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {loading ? (
+              {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                       <Loader2 className="w-8 h-8 animate-spin text-muted-foreground/50" />
                       <p>Memuat data...</p>
@@ -55,27 +53,19 @@ export function InventoryTable() {
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-3">
                       <AlertCircle className="w-12 h-12 text-red-500/50" />
                       <div>
                         <p className="text-red-600 font-medium">Gagal memuat data</p>
                         <p className="text-sm">{error}</p>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={refetch}
-                        className="mt-2"
-                      >
-                        Coba Lagi
-                      </Button>
                     </div>
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                       <Package className="w-12 h-12 text-muted-foreground/50" />
                       <p>Belum ada data transaksi</p>
@@ -100,11 +90,6 @@ export function InventoryTable() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium">{item.name}</div>
-                      {item.notes && (
-                        <div className="text-xs text-muted-foreground mt-1 max-w-xs truncate">
-                          {item.notes}
-                        </div>
-                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
@@ -128,21 +113,12 @@ export function InventoryTable() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-semibold">{item.quantity.toLocaleString('id-ID')}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      <div className="flex items-center gap-2">
-                        <Package className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">
-                          {item.stockQty !== undefined ? item.stockQty.toLocaleString('id-ID') : '-'}
-                        </span>
-                      </div>
-                    </td>
                     <td className="px-6 py-4 hidden lg:table-cell">
                       <div className="text-sm max-w-xs truncate">{item.project}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden xl:table-cell">
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="w-4 h-4 text-muted-foreground" />
-                        {item.supervisor}
+                    <td className="px-6 py-4 hidden lg:table-cell">
+                      <div className="text-sm max-w-xs truncate text-muted-foreground">
+                        {item.notes || '-'}
                       </div>
                     </td>
                   </motion.tr>
@@ -155,4 +131,3 @@ export function InventoryTable() {
     </Card>
   )
 }
-

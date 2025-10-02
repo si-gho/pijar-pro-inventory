@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useInventory } from '@/lib/hooks/use-inventory'
+import { useOperationsStore } from '../store/operationsStore'
 import { Card, CardContent } from '@/components/ui/card'
 import { Package, TrendingUp, TrendingDown, FileText } from 'lucide-react'
 
@@ -45,24 +45,13 @@ const statsConfig = [
 ]
 
 export function StatsCards() {
-  const { items, loading } = useInventory()
-
-  const getStats = () => {
-    if (loading || !items) return { total: 0, masuk: 0, keluar: 0, projects: 0 }
-    
-    const masuk = items.filter(item => item.type === 'masuk').length
-    const keluar = items.filter(item => item.type === 'keluar').length
-    const projects = new Set(items.map(item => item.project)).size
-    
-    return {
-      total: items.length,
-      masuk,
-      keluar,
-      projects
-    }
-  }
-
-  const stats = getStats()
+  const { 
+    getTotalTransactions, 
+    getTotalMasuk, 
+    getTotalKeluar, 
+    getActiveProjects,
+    isLoading 
+  } = useOperationsStore()
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -70,19 +59,21 @@ export function StatsCards() {
         const Icon = stat.icon
         let value = 0
         
-        switch (stat.key) {
-          case 'getTotalTransactions':
-            value = stats.total
-            break
-          case 'getTotalMasuk':
-            value = stats.masuk
-            break
-          case 'getTotalKeluar':
-            value = stats.keluar
-            break
-          case 'getActiveProjects':
-            value = stats.projects
-            break
+        if (!isLoading) {
+          switch (stat.key) {
+            case 'getTotalTransactions':
+              value = getTotalTransactions()
+              break
+            case 'getTotalMasuk':
+              value = getTotalMasuk()
+              break
+            case 'getTotalKeluar':
+              value = getTotalKeluar()
+              break
+            case 'getActiveProjects':
+              value = getActiveProjects()
+              break
+          }
         }
         
         return (
@@ -105,7 +96,7 @@ export function StatsCards() {
                       animate={{ scale: 1 }}
                       transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
                     >
-                      {value}
+                      {isLoading ? '-' : value}
                     </motion.p>
                   </div>
                   <div className={`${stat.bgColor} p-3 rounded-lg`}>
