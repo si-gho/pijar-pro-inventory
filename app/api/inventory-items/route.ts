@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { inventory } from '@/lib/db/schema'
 import { desc } from 'drizzle-orm'
+import { validateNewInventoryItem, handleOperationError } from '@/lib/validations/operations'
 
 export async function GET() {
   try {
@@ -24,20 +25,34 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
+    // Validate request body
+    const validationResult = validateNewInventoryItem(body)
+    
+    if (!validationResult.success) {
+      const operationError = handleOperationError(validationResult.error)
+      return NextResponse.json(
+        { error: operationError.message, details: operationError.details },
+        { status: 400 }
+      )
+    }
+    
+    const validatedData = validationResult.data
+    
     const newItem = await db
       .insert(inventory)
       .values({
-        itemName: body.itemName,
-        description: body.description || null,
-        stockQty: body.stockQty || 0,
+        itemName: validatedData.itemName,
+        description: validatedData.description || null,
+        stockQty: validatedData.stockQty,
       })
       .returning()
 
     return NextResponse.json(newItem[0], { status: 201 })
   } catch (error) {
     console.error('Error creating inventory item:', error)
+    const operationError = handleOperationError(error)
     return NextResponse.json(
-      { error: 'Failed to create inventory item' },
+      { error: operationError.message },
       { status: 500 }
     )
   }

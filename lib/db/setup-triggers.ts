@@ -8,7 +8,7 @@ export async function setupTriggers() {
     console.log('🔧 Setting up database triggers...')
     
     // Read the trigger SQL file
-    const triggerSQL = readFileSync(join(__dirname, 'triggers.sql'), 'utf-8')
+    const triggerSQL = readFileSync(join(process.cwd(), 'lib/db/triggers.sql'), 'utf-8')
     
     // Execute the trigger SQL
     await db.execute(sql.raw(triggerSQL))

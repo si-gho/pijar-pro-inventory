@@ -5,9 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useInventoryStore } from '@/lib/store/inventory-store'
 import { useInventory } from '@/lib/hooks/use-inventory'
 import { useInventoryItems } from '@/lib/hooks/use-inventory-items'
-import { inventoryFormSchema } from '@/lib/validations/inventory'
-import { NewItemModal } from './new-item-modal'
-import { StockWarningModal } from './stock-warning-modal'
+import { 
+  inventoryFormSchema,
+  handleOperationError,
+  formatErrorForToast,
+  formatSuccessForToast,
+  parseZodErrors,
+  type InventoryFormData as ValidatedInventoryFormData
+} from '@/lib/validations/operations'
+import { NewItemModal, StockWarningModal } from './new-item-modal'
 
 // Custom interface untuk form data
 interface FormData {
@@ -36,6 +42,7 @@ export function InventoryForm() {
   const [showNewItemModal, setShowNewItemModal] = useState(false)
   const [showStockWarning, setShowStockWarning] = useState(false)
   const [maxStock, setMaxStock] = useState(0)
+  const [pendingNewItem, setPendingNewItem] = useState<any>(null) // Barang baru yang belum disimpan
 
   // Refs for auto-focus
   const quantityInputRef = useRef<HTMLInputElement>(null)
@@ -137,6 +144,19 @@ export function InventoryForm() {
         return
       }
 
+      // Jika ada barang baru yang pending, simpan ke database dulu
+      if (pendingNewItem) {
+        await fetch('/api/inventory-items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            itemName: pendingNewItem.itemName,
+            description: pendingNewItem.description || undefined,
+            stockQty: 0,
+          }),
+        })
+      }
+
       const formDataToValidate = {
         ...formData,
         quantity: parseInt(formData.quantity.toString()) || 0
@@ -174,21 +194,21 @@ export function InventoryForm() {
       // Reset checkbox state
       setStatusMasuk(false)
       setStatusKeluar(false)
+      
+      // Reset pending new item
+      setPendingNewItem(null)
 
       setShowForm(false)
 
-      toast({
-        title: "Data berhasil ditambahkan",
-        description: `${validatedData.name} telah ditambahkan ke inventori.`,
-      })
+      toast(formatSuccessForToast('TRANSACTION_SAVED', `${validatedData.name} telah ditambahkan ke inventori`))
     } catch (error: any) {
-      if (error.errors) {
-        const fieldErrors: Record<string, string> = {}
-        error.errors.forEach((err: any) => {
-          fieldErrors[err.path[0]] = err.message
-        })
-        setErrors(fieldErrors)
+      const operationError = handleOperationError(error)
+      
+      if (operationError.details) {
+        setErrors(operationError.details as Record<string, string>)
       }
+      
+      toast(formatErrorForToast(operationError))
     } finally {
       setIsSubmitting(false)
     }
@@ -240,6 +260,7 @@ export function InventoryForm() {
                     <Label htmlFor="name">Nama Barang</Label>
                     <div className="flex gap-2">
                       <Select
+                        key={pendingNewItem ? `with-pending-${pendingNewItem.itemName}` : 'no-pending'}
                         value={formData.name}
                         onValueChange={handleItemSelect}
                       >
@@ -252,21 +273,38 @@ export function InventoryForm() {
                               <Loader2 className="w-4 h-4 animate-spin mr-2" />
                               <span className="text-sm text-muted-foreground">Memuat...</span>
                             </div>
-                          ) : inventoryItems.length === 0 ? (
-                            <div className="flex items-center justify-center py-2 px-4">
-                              <span className="text-sm text-muted-foreground">Tidak ada barang tersedia</span>
-                            </div>
                           ) : (
-                            inventoryItems.map((item, index) => (
-                              <SelectItem key={`${item.id}-${item.itemName}-${index}`} value={item.itemName}>
-                                <div className="flex flex-col">
-                                  <span>{item.itemName}</span>
-                                  <span className="text-xs text-muted-foreground">
-                                    Stok: {item.stockQty}
-                                  </span>
+                            <>
+                              {/* Tampilkan barang pending jika ada */}
+                              {pendingNewItem && (
+                                <SelectItem key={`pending-${pendingNewItem.itemName}`} value={pendingNewItem.itemName}>
+                                  <div className="flex flex-col">
+                                    <span>{pendingNewItem.itemName}</span>
+                                    <span className="text-xs text-blue-600 font-medium">
+                                      Barang Baru (Belum Tersimpan)
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              )}
+                              
+                              {/* Tampilkan barang dari database */}
+                              {inventoryItems.length === 0 && !pendingNewItem ? (
+                                <div className="flex items-center justify-center py-2 px-4">
+                                  <span className="text-sm text-muted-foreground">Tidak ada barang tersedia</span>
                                 </div>
-                              </SelectItem>
-                            ))
+                              ) : (
+                                inventoryItems.map((item, index) => (
+                                  <SelectItem key={`${item.id}-${item.itemName}-${index}`} value={item.itemName}>
+                                    <div className="flex flex-col">
+                                      <span>{item.itemName}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        Stok: {item.stockQty}
+                                      </span>
+                                    </div>
+                                  </SelectItem>
+                                ))
+                              )}
+                            </>
                           )}
                         </SelectContent>
                       </Select>
@@ -385,6 +423,8 @@ export function InventoryForm() {
         open={showNewItemModal}
         onOpenChange={setShowNewItemModal}
         onSuccess={(newItem) => {
+          // Simpan barang baru sebagai pending (belum ke database)
+          setPendingNewItem(newItem)
           setFormData(prev => ({ ...prev, name: newItem.itemName }))
           setShowNewItemModal(false)
           // Auto focus ke quantity input setelah tambah barang

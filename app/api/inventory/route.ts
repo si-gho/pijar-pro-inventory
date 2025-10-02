@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { transactions, users, inventory } from '@/lib/db/schema'
 import { desc, eq } from 'drizzle-orm'
+import { validateInventoryItem, handleOperationError } from '@/lib/validations/operations'
 
 export async function GET() {
   try {
@@ -38,6 +39,23 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
+    // Validate request body
+    const validationResult = validateInventoryItem({
+      ...body,
+      project: body.project || 'Pembangunan Gedung Kantor',
+      supervisor: body.supervisor || 'Ir. Ahmad Fauzi',
+    })
+    
+    if (!validationResult.success) {
+      const operationError = handleOperationError(validationResult.error)
+      return NextResponse.json(
+        { error: operationError.message, details: operationError.details },
+        { status: 400 }
+      )
+    }
+    
+    const validatedData = validationResult.data
+    
     // Default user ID (operator1) - in real app, get from session
     const defaultUser = await db
       .select()
@@ -56,7 +74,7 @@ export async function POST(request: NextRequest) {
     let inventoryItem = await db
       .select()
       .from(inventory)
-      .where(eq(inventory.itemName, body.name))
+      .where(eq(inventory.itemName, validatedData.name))
       .limit(1)
     
     if (inventoryItem.length === 0) {
@@ -64,8 +82,8 @@ export async function POST(request: NextRequest) {
       const newInventoryItem = await db
         .insert(inventory)
         .values({
-          itemName: body.name,
-          description: body.notes || null,
+          itemName: validatedData.name,
+          description: validatedData.notes || null,
           stockQty: 0,
         })
         .returning()
@@ -79,9 +97,9 @@ export async function POST(request: NextRequest) {
       .values({
         userId: defaultUser[0].id,
         inventoryId: inventoryItem[0].id,
-        trxType: body.type,
-        qty: body.quantity,
-        trxDate: new Date(body.date),
+        trxType: validatedData.type,
+        qty: validatedData.quantity,
+        trxDate: new Date(validatedData.date),
       })
       .returning()
 
@@ -102,8 +120,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response, { status: 201 })
   } catch (error) {
     console.error('Error creating inventory item:', error)
+    const operationError = handleOperationError(error)
     return NextResponse.json(
-      { error: 'Failed to create inventory item' },
+      { error: operationError.message },
       { status: 500 }
     )
   }

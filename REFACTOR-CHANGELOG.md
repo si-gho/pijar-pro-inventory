@@ -22,6 +22,61 @@
 - ✅ **Better visual hierarchy**
 - ✅ **Improved mobile experience**
 
+### 🔄 **Modal Components Consolidation** (Latest)
+- ✅ **Combined modals**: `NewItemModal` + `StockWarningModal` in single file
+- ✅ **File location**: `/components/operations/new-item-modal.tsx`
+- ✅ **Button text**: Changed "Tambah" to "Lanjutkan"
+- ✅ **Moved inventory-master**: To `/components/operations/inventory-master.tsx`
+
+### 🎯 **New Item Flow Enhancement** (Latest)
+**Flow Logic:**
+1. ✅ **User adds new item** → Modal opens with auto-focus
+2. ✅ **User clicks "Lanjutkan"** → Item name appears in form
+3. ✅ **Auto-focus to quantity** → Numeric keyboard triggers
+4. ✅ **Item saved as pending** → Not yet in database
+5. ✅ **After transaction save** → New item added to inventory-master
+
+**Benefits:**
+- 🎯 **Better UX**: Item appears immediately in form
+- 📱 **Mobile optimized**: Auto-focus chain works perfectly
+- 🔄 **Proper data flow**: New items only saved after transaction success
+- 🧹 **Clean structure**: All modals in one organized file
+
+### 📋 **Validation & Error Handling Refactor** (Latest)
+**New Structure:**
+```
+lib/validations/operations/
+├── index.ts                 # Central exports
+├── inventory-form.ts        # Form validation
+├── new-item-modal.ts        # New item validation
+├── stock-validation.ts      # Stock validation
+├── error-handling.ts        # Error utilities
+└── README.md               # Documentation
+```
+
+**Improvements:**
+- ✅ **Centralized validation** in organized folder structure
+- ✅ **Enhanced error handling** with proper error types
+- ✅ **User-friendly messages** in Indonesian
+- ✅ **Type-safe validation** with Zod schemas
+- ✅ **Consistent toast integration** across all components
+- ✅ **API validation** for all endpoints
+- ✅ **Helper functions** for common operations
+
+**Files Updated:**
+- ✅ `components/operations/inventory-form.tsx` - New validation imports
+- ✅ `components/operations/new-item-modal.tsx` - Enhanced validation
+- ✅ `app/api/inventory/route.ts` - API validation
+- ✅ `app/api/inventory-items/route.ts` - API validation
+- ❌ `lib/validations/inventory.ts` - Removed (migrated)
+
+**Benefits:**
+- 🎯 **Better organization**: Clear separation of concerns
+- 🚨 **Improved error handling**: Consistent error messages
+- 🔧 **Maintainable code**: Centralized validation logic
+- 📱 **Better UX**: User-friendly error messages
+- ✅ **Type safety**: Full TypeScript support
+
 ### 1. **Hapus Fitur Test** 🗑️
 - ❌ Deleted `app/test/page.tsx`
 - ❌ Deleted `test-api.js`
